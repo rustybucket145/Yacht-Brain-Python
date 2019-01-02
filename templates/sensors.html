@@ -13,7 +13,7 @@
         Here we assign sensors to the proper locations and set alarm or alert ranges.
     </p>
 
-    
+	
         {% for sensor in sensors %}
 
             <form method="POST" action="">
@@ -43,9 +43,7 @@
                             {% for sensor_type in sensor_types %}
                                 <option value="{{ sensor_type.sensor_type_value }}" {% if sensor.sensor_type == sensor_type.sensor_type_value %}selected{% endif %}>{{ sensor_type.sensor_type_title }}</option>
                             {% endfor %}
-
-                 
-                            
+                                           
                         </select>
                         
                     </div>
@@ -95,13 +93,20 @@
                    
                     <div class="col-sm-2">
                         <label for="sensor_db_id">Database Id</label>
-                        <input disabled type="text" name="sensor_db_id">
+                        <input type="text" name="sensor_db_id" value="{{ sensor.sensor_db_id }}" size=5>
+			<!-- making the sensor ID disabled prevents the value from being published to the form and readable in code.  removed this for timebeing -->
                     </div>
                  </div>
                  <div class="row">
                     <div class="col-sm-2">
-                        <input type="submit" value="Save">
+                        <input type="submit" value="Save">  
                     </div>
+		    <div class="col-sm-2">
+                        <label for="Delete"><input type="checkbox" name="delete" value="1">Delete this Sensor?</label>
+                    </div>
+
+
+
                 </div>
             </form>
 
