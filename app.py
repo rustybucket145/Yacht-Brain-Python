@@ -7,6 +7,9 @@ import lib.Adafruit_GPIO.SPI as SPI
 import lib.Adafruit_MCP3008 as MCP
 import lib.Adafruit_MAX31855.MAX31855 as MAX31855
 import time
+import glob
+
+base_dir = '/sys/bus/w1/devices/'
 
 from flask import Flask, render_template, request
 
@@ -37,6 +40,28 @@ def index():
 # Define a function to convert celsius to fahrenheit.
 def c_to_f(c):
         return c * 9.0 / 5.0 + 32.0
+
+
+def read_temp_raw(device_file):
+    f = open(device_file, 'r')
+    lines = f.readlines()
+    f.close()
+    return lines
+
+def read_temp(sensor_id):
+    device_folder = glob.glob(base_dir + sensor_id)[0]
+    device_file = device_folder + '/w1_slave'
+
+    lines = read_temp_raw(device_file)
+    while lines[0].strip()[-3:] != 'YES':
+        time.sleep(0.2)
+        lines = read_temp_raw(device_file)
+    equals_pos = lines[1].find('t=')
+    if equals_pos != -1:
+        temp_string = lines[1][equals_pos+2:]
+        temp_c = float(temp_string) / 1000.0
+        temp_f = temp_c * 9.0 / 5.0 + 32.0
+        return int(round(temp_f))
 
 @app.route('/create_database')
 def create_database():
@@ -74,10 +99,10 @@ def sensors():
         print('form was posted')
         sensor_db_id = request.form.get("sensor_db_id")
 
+        #        , sensor_id = request.form.get("sensor_id")  - removed this so they cant overwrite it
         # its adding a new one on update... change to do an update        
         sensor = Sensors(title = request.form.get("title")
         , sensor_db_id = request.form.get("sensor_db_id")
-        , sensor_id = request.form.get("sensor_id")
         , sensor_location = request.form.get("sensor_location")
         , sensor_type = request.form.get("sensor_type")
         , warning_low = request.form.get("warning_low")
@@ -147,9 +172,9 @@ def sensors():
     # Software SPI configuration:
     
     for  rpipin in rpipins:
-        if rpipin.rpipins_type == "Analog" and rpipin.rpipins_clk is not None:
+        if rpipin.rpipins_type == "Analog" and rpipin.rpipins_clk is not None and rpipin.rpipins_clk != 'None':
             
-            
+            BoardNum = rpipin.rpipins_number
             CLK  = int(rpipin.rpipins_clk)
             MISO = int(rpipin.rpipins_miso)
             MOSI = int(rpipin.rpipins_mosi)
@@ -166,7 +191,7 @@ def sensors():
                 values[i] = mcp.read_adc(i)
                 voltage = (values[i]*5)/1024.0;
                 if voltage > 0.4:
-                    sensor = Sensors(sensor_id = 'A' + str(i))
+                    sensor = Sensors(sensor_id = 'A' + str(i) + '-' + str(BoardNum))
                     #print('SensorID: ' + sensor)
                     if sensor.sensor_id not in sensors_in_database:
                         #insert record   
@@ -178,7 +203,7 @@ def sensors():
     #Now check for any MAX31855 Sensors
     x = 0
     for  rpipin in rpipins:
-        if rpipin.rpipins_type == "MAX31855" and  rpipin.rpipins_clk is not None:
+        if rpipin.rpipins_type == "MAX31855" and  rpipin.rpipins_clk is not None and rpipin.rpipins_clk != 'None': 
             x = x + 1
             
             # Raspberry Pi software SPI configuration.
@@ -253,15 +278,93 @@ def rpipins():
     print('post values')
     return render_template("tables.html", rpipins = rpipins)
 
+def left(s, amount):
+    return s[:amount]
 
+def right(s, amount):
+    return s[-amount:]
 
 @app.route('/display')
 def display():
 
+    print('Reading Sensors from DB')
+    #get all sensors stored in the database
+    sensors = Sensors.query.order_by(Sensors.title).all()
+    
+    ScreenText = []
 
+    print('Load DB Sensors into Array')
+    #loop through all sensors saved in db and create an array of the sensor id's
+    for sensor in sensors:
 
-    print('post values')
-    return render_template("display.html")      
+               
+        #Display them all now to screen
+        if sensor.is_one_wire == 1:
+            #1 Wire 
+            device_folder = glob.glob(base_dir + '*')[0]
+            device_file = device_folder + '/w1_slave'
+            print(sensor.title + ' - ' + str(read_temp(sensor.sensor_id)))
+            ScreenText.append(sensor.title + ' - ' + str(read_temp(sensor.sensor_id)) )
+            
+        elif sensor.is_analog_sensor == 1:
+            
+            #which board is this, and find right pins for it
+            BoardNum = right(sensor.sensor_id,1)
+            
+            #now do a lookup from rpipins to find Analog pins for that board
+            rpipins = RPIPins.query.order_by(RPIPins.rpipins_id).all()
+            
+            for rpipin in rpipins:
+                if rpipin.rpipins_type == 'Analog' and rpipin.rpipins_number == str(BoardNum):
+                    
+                    # Software SPI configuration:
+                    pCLK  = int(rpipin.rpipins_clk)
+                    MISO = int(rpipin.rpipins_miso)
+                    MOSI = int(rpipin.rpipins_mosi)
+                    CS   = int(rpipin.rpipins_cs)
+                    mcp = MCP.MCP3008(clk=pCLK, cs=CS, miso=MISO, mosi=MOSI)
+            
+            # The read_adc function will get the value of the specified channel (0-7).
+            voltage = mcp.read_adc(int(right(left(sensor.sensor_id,2),1)))
+            
+            #hook up 5v to first slot to read true 5.0 v
+            voltage = (voltage*5)/1024.0;
+         
+            #if voltage > 0.25:
+            print(sensor.title + ' - v:' + str(voltage));
+            ScreenText.append(sensor.title + ' - v:' + str(voltage))
+            
+            #need to look up the other sensor settings to determine voltage scale still
+            # Print the ADC values.
+            # for 150 psi  .5 = 0psi  2.5v=75psi  4.5v=150psi
+            # for 300 psi  .5 = 0psi  2.5v=150psi  4.5v=300psi
+            
+            
+        elif left(sensor.sensor_id,8) == 'MAX31855':
+            
+            #which board is this, and find right pins for it
+            BoardNum = right(sensor.sensor_id,1)
+            
+            #now do a lookup from rpipins to find Analog pins for that board
+            rpipins = RPIPins.query.order_by(RPIPins.rpipins_id).all()
+            
+            for rpipin in rpipins:
+                if rpipin.rpipins_type == 'MAX31855' and rpipin.rpipins_number == str(BoardNum):
+                    # Raspberry Pi software SPI configuration.
+                    CLK  = int(rpipin.rpipins_clk)
+                    DO = int(rpipin.rpipins_miso)
+                    CS   = int(rpipin.rpipins_cs)
+                    maxsensor = MAX31855.MAX31855(CLK, CS, DO)
+
+            #example code on reading from sensor
+            temp = maxsensor.readTempC()
+            internal = maxsensor.readInternalC()
+            print(sensor.title + ' Probe Temp: ' +  str(c_to_f(temp)))
+            print(sensor.title + ' Board Temp: ' +  str(c_to_f(internal)))
+            ScreenText.append(sensor.title + ' Probe Temp: ' +  str(c_to_f(temp)) )
+            ScreenText.append(sensor.title + ' Board Temp: ' +  str(c_to_f(internal)) )
+
+    return render_template("display.html", ScreenText = ScreenText)      
 
 if __name__ == '__main__':
     app.run(debug=True,host='0.0.0.0')

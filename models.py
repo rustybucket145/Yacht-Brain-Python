@@ -52,4 +52,4 @@ class RPIPins(db.Model):
     def __repr__(self):
         return"<Title>: {}>".format(self.rpipins_title)
     
-    
+
