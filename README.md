@@ -35,8 +35,9 @@ Now you should be able to navigate to the folder in your RPi:
 /home/pi/Yacht-Brain-Python
 
 Getting started you will need to trigger your database to be created by firing
-up the python3 server and visiting a few pages.
+up the python3 server and clicking a link on the home page.
 
+Launch the app as follows:
 In terminal enter the following commands one at a time (pressing enter key after each)
 cd /home/pi/Yacht-Brain-Python
 python3 app.py
@@ -44,14 +45,13 @@ python3 app.py
 Our web server should now be online and active. To check visit the following url
 In your browser
 
-http://127.0.0.1:5000/create_database
-
-The url above automagically creates the database and all database tables used in Yacht Brain
-
-Now you can visit the actual dashboard by the following url
 http://127.0.0.1:5000/
 
-To setup your sensors just click the 'Sensors' link on the left side of the page.  
+Click the Create Database URL which automagically creates the database and all database tables used in Yacht Brain
+
+Now click on the Board/Pin Assignments tab.  Here you will assign which pins your Analog and other boards utilize.
+
+Finally, to setup your sensors just click the 'Sensors' link on the left side of the page.  
 You will need to assing all sensors on your system. 
 note:  If no sensors are shown it is bc none are connected to your RPi  
 
