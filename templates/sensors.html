@@ -10,7 +10,7 @@
 {% block content %}
     <h1>Sensors {{ testy }}</h1>
     <p class="important">
-        Here we assign sensors to the proper locations and set alarm or alert ranges.
+        Here we assign sensors to the proper locations and set alarm or alert ranges.  
     </p>
 
 	
@@ -87,8 +87,8 @@
                  </div>
                  <div class="row">
                     <div class="col-sm-2">
-                        <label for="is_one_wire"><input type="checkbox" name="is_one_wire" value="1" {% if sensor.is_one_wire == '1' %}checked="checked"{% endif %}> Is OneWire?</label>
-                        <label for="is_analog_sensor"><input type="checkbox" name="is_analog_sensor" value="1" {% if sensor.is_analog_sensor == '1' %}checked="checked"{% endif %}> Is Analog</label>
+                        <label for="is_one_wire"><input type="checkbox" name="is_one_wire" value="1" {% if sensor.is_one_wire == 1 %}checked="checked"{% endif %}> Is OneWire?</label>
+                        <label for="is_analog_sensor"><input type="checkbox" name="is_analog_sensor" value="1" {% if sensor.is_analog_sensor == 1 %}checked="checked"{% endif %}> Is Analog</label>
                     </div>
                    
                     <div class="col-sm-2">

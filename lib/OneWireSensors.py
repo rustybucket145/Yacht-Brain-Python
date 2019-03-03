@@ -9,8 +9,9 @@ os.system('modprobe w1-therm')
 base_dir = '/sys/bus/w1/devices/'
 
 sensors = {
-           'temp-test': '28-0315901e06ff'
+           'Probe 1': '28-020b924591df','Probe 2': '28-020a92454cf1'
            };
+
 
 def read_temp_raw(device_file):
     f = open(device_file, 'r')
@@ -45,19 +46,19 @@ def get_all_onewire_ids():
     
 
 
-	
-#while True:
- 
-    #device_folder = glob.glob(base_dir + '*')[0]
-    #device_file = device_folder + '/w1_slave'
-
- #   for k, v in sensors.items():
-        #print(k,v)
-        
-    
- #       print(str(read_temp(v))+' '+k)	
-
-
-  #  print('=============================')
-  #  time.sleep(2)
+##	
+##while True:
+##
+##    device_folder = glob.glob(base_dir + '*')[0]
+##    device_file = device_folder + '/w1_slave'
+##
+##    for k, v in sensors.items():
+##        print(k,v)
+##        
+##    
+##        print(str(read_temp(v))+' '+k)	
+##
+##
+##    print('=============================')
+##    time.sleep(2)
 

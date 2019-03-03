@@ -22,9 +22,9 @@ sudo apt-get install sqlite3
 
 SQLAlchemy - database manager for flask somehow
 https://www.pythoncentral.io/how-to-install-sqlalchemy/
-from the terminal run the following commands (one at a time)
-sudo apt-get install python3-sqlalchemy
-sudo apt-get install python3-flask-sqlalchemy
+from the terminal run the following command
+pip install sqlalchemy
+
 
 Now you can clone the Yacht Brain for Python from git into your RPi
 from the terminal run the following command

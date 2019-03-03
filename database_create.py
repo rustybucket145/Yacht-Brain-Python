@@ -5,8 +5,7 @@ from sqlalchemy import event, DDL
 from shared import db
 
 #import our data models
-from models import Sensors, SensorLocations, SensorTypes
-
+from models import RPIPins, Sensors, SensorLocations, SensorTypes
 
           
 
@@ -52,6 +51,20 @@ def insert_initial_values_sensor_types():
         db.session.add(SensorTypes(sensor_type_value='crankcasePressure', sensor_type_title='Crankcase Pressure'))
         db.session.add(SensorTypes(sensor_type_value='runTime', sensor_type_title='Run Time')) 
         db.session.commit()
+        
+
+def insert_initial_RPIValues():
+    print('firing initial values for RPIPins')
+    
+    #check to see if these have been populated already
+    if db.session.query(RPIPins.rpipins_title).all() == []:
+        print('inserting initial rpi values')
+        db.session.add(RPIPins(rpipins_type='Analog', rpipins_number='1',rpipins_title='Analog Board 1'))
+        db.session.add(RPIPins(rpipins_type='Analog', rpipins_number='2',rpipins_title='Analog Board 2'))
+        db.session.add(RPIPins(rpipins_type='MAX31855', rpipins_number='1',rpipins_title='Max Sensor 1'))
+        db.session.add(RPIPins(rpipins_type='MAX31855', rpipins_number='2',rpipins_title='Max Sensor 2'))
+        db.session.commit()
+            
         
 #event.listen(SensorLocations.__table__, 'after_create', insert_initial_values_sensor_locations)
 

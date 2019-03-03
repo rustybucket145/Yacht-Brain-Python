@@ -8,7 +8,22 @@
   </style>
 {% endblock %}
 {% block content %}
-  <h1>Index</h1>
+  <h1>Yacht Brain</h1>
   <p class="important">
-    Welcome on my awesome homepage now.
+
+Welcome to the Starting page for Yacht Brain.  If this is your first time launching this, please click <a href="/create_database">here to create the initial database</a>
+<div>
+Once you have setup the DB, click on Board/PIN Assignment on the left to tell us what Pins you are using on your RPI for your sensors. 
+<br>For OneWire, be sure to connect to #4. 
+<br>For Analog board(s), the recommended pins to use are: CLK  = 18, MISO = 23, MOSI = 24, CS   = 25.
+<br>
+You can define up to 2 Analog boards in the page.
+<br>
+This will also support MAX31855 Boards if you have those.  These have an internal temperature on the board, and will connect to Pyro thermocouples for external reading.  
+<br>
+Hardware Recomendations:
+blah
+blah
+blah
+
 {% endblock %}

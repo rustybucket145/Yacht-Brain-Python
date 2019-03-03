@@ -10,16 +10,16 @@ import Adafruit_MCP3008
 
 
 # Software SPI configuration:
-#CLK  = 18 
-#MISO = 23
-#MOSI = 24
-#CS   = 25
-#mcp = Adafruit_MCP3008.MCP3008(clk=CLK, cs=CS, miso=MISO, mosi=MOSI)
+CLK  = 18 
+MISO = 23
+MOSI = 24
+CS   = 25
+mcp = Adafruit_MCP3008.MCP3008(clk=CLK, cs=CS, miso=MISO, mosi=MOSI)
 
 # Hardware SPI configuration:
-SPI_PORT   = 0
-SPI_DEVICE = 0
-mcp = Adafruit_MCP3008.MCP3008(spi=SPI.SpiDev(SPI_PORT, SPI_DEVICE))
+#SPI_PORT   = 0
+#SPI_DEVICE = 0
+#mcp = Adafruit_MCP3008.MCP3008(spi=SPI.SpiDev(SPI_PORT, SPI_DEVICE))
 
 
 print('Reading MCP3008 values, press Ctrl-C to quit...')
@@ -37,6 +37,13 @@ while True:
         if voltage > 0.4:
             print(voltage);
     # Print the ADC values.
+    # for 150 psi  .5 = 0psi  2.5v=75psi  4.5v=150psi
+    # for 300 psi  .5 = 0psi  2.5v=150psi  4.5v=300psi
+     
     print('| {0:>4} | {1:>4} | {2:>4} | {3:>4} | {4:>4} | {5:>4} | {6:>4} | {7:>4} |'.format(*values))
-    # Pause for half a second.
-    time.sleep(0.5)
+    # Pause for a second.
+    time.sleep(1)
+    
+    
+    
+    

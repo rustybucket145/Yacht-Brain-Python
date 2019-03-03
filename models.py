@@ -37,3 +37,19 @@ class SensorTypes(db.Model):
 
     def __repr__(self):
         return"<Title>: {}>".format(self.sensor_type_title)
+
+
+class RPIPins(db.Model):
+    rpipins_id = db.Column(db.Integer, unique=True, nullable=False, primary_key=True)
+    rpipins_type = db.Column(db.String(80))
+    rpipins_number = db.Column(db.String(50))
+    rpipins_title = db.Column(db.String(80))
+    rpipins_clk = db.Column(db.String(2))
+    rpipins_cs = db.Column(db.String(2))
+    rpipins_miso = db.Column(db.String(2))
+    rpipins_mosi = db.Column(db.String(2))
+
+    def __repr__(self):
+        return"<Title>: {}>".format(self.rpipins_title)
+    
+    
