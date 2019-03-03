@@ -1,0 +1,90 @@
+
+{% extends "layout.html" %}
+{% block title %}Index{% endblock %}
+{% block head %}
+  {{ super() }}
+  <style type="text/css">
+    .important { color: #336699; }
+  </style>
+{% endblock %}
+{% block content %}
+    <h1>Sensor Pins </h1>
+    <p class="important">
+        Here we assign Pin Values for any Analog or Max31855 Sensors.  If a board is not used, just leave the values as None.
+    </p>
+
+    
+	{% for RPIPin in rpipins %}
+
+           <form method="POST" action="">
+                <div class="form-group row">
+                     
+                    <div class="col-sm-2">
+                        <label for="rpipins_title">Sensor Name</label>
+                        <input type="text" name="rpipins_title" value="{{RPIPin.rpipins_title}}">
+                    </div>
+                    <div class="col-sm-2">
+                        <label for="rpipins_type">Sensor Type</label>
+			<select name="rpipins_type">
+                            {% if RPIPin.rpipins_type == 'Analog': %}
+				<option value="Analog" selected>Analog</option>
+				<option value="MAX31855">MAX31855</option>
+                            {% else: %}
+				<option value="Analog">Analog</option>
+				<option value="MAX31855" selected>MAX31855</option>
+			    {% endif %}
+			</select>
+                    </div>
+                    <div class="col-sm-2">
+                        <label for="rpipins_number">Sensor Type Number</label>
+			<select name="rpipins_number">
+                            {% if RPIPin.rpipins_number == '1': %}
+				<option value="1"  selected>1</option>
+				<option value="2">2</option>
+                            {% else: %}
+				<option value="1">1</option>
+				<option value="2" selected>2</option>
+			    {% endif %}
+				
+			</select>
+  	            </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-2">
+                        <label for="alarm_low">CLK Pin</label>
+                        <input type="text" name="rpipins_clk" value="{{ RPIPin.rpipins_clk }}">
+                    </div>
+                    <div class="col-sm-2">
+                        <label for="warning_low">CS Pin</label>
+                        <input type="text" name="rpipins_cs" value="{{ RPIPin.rpipins_cs }}">
+                    </div>
+                    <div class="col-sm-2">
+                        <label for="warning_hi">MISO / DO Pin</label>
+                        <input type="text" name="rpipins_miso" value="{{ RPIPin.rpipins_miso }}">
+                    </div>
+                    <div class="col-sm-2">
+                        <label for="alarm_hi">MOSI Pin</label>
+                        <input type="text" name="rpipins_mosi" value="{{ RPIPin.rpipins_mosi }}">
+                    </div>
+                 </div>
+                 <div class="row">
+                    <div class="col-sm-2">
+                        <label for="sensor_db_id">Database Id</label>
+                        <input type="text" name="rpipins_id" value="{{ RPIPin.rpipins_id }}" size=5>
+			<!-- making the sensor ID disabled prevents the value from being published to the form and readable in code.  removed this for timebeing -->
+                    </div>
+                    <div class="col-sm-2">
+                        <input type="submit" value="Save">  
+                    </div>
+		    
+                </div>
+           <hr>
+       </form>
+        
+
+     {% endfor %}
+     		
+
+            <hr />
+
+{% endblock %}
