@@ -269,8 +269,8 @@ def display():
             #1 Wire 
             device_folder = glob.glob(base_dir + '*')[0]
             device_file = device_folder + '/w1_slave'
-            print(sensor.title + ' - ' + str(read_temp(sensor.sensor_id)))
-            ScreenText.append(sensor.title + ' - ' + str(read_temp(sensor.sensor_id)) )
+            print(sensor.title + ' : ' + str(read_temp(sensor.sensor_id)) + 'F')
+            ScreenText.append(sensor.title + ' : ' + str(read_temp(sensor.sensor_id)) + 'F' )
             
         elif sensor.is_analog_sensor == 1:
             
@@ -297,8 +297,13 @@ def display():
             voltage = (voltage*5)/1024.0;
          
             #if voltage > 0.25:
-            print(sensor.title + ' - v:' + str(voltage));
-            ScreenText.append(sensor.title + ' - v:' + str(voltage))
+            pressure = 0
+            if voltage > .5:
+                # example multiplier for 150psi sensor
+                pressure = voltage * 30
+            
+            print(sensor.title + ' : ' + str(pressure) + 'psi');
+            ScreenText.append(sensor.title + ' : ' + str(pressure) + 'psi')
             
             #need to look up the other sensor settings to determine voltage scale still
             # Print the ADC values.
@@ -327,8 +332,8 @@ def display():
             internal = maxsensor.readInternalC()
             print(sensor.title + ' Probe Temp: ' +  str(c_to_f(temp)))
             print(sensor.title + ' Board Temp: ' +  str(c_to_f(internal)))
-            ScreenText.append(sensor.title + ' Probe Temp: ' +  str(c_to_f(temp)) )
-            ScreenText.append(sensor.title + ' Board Temp: ' +  str(c_to_f(internal)) )
+            ScreenText.append(sensor.title + ' Probe Temp: ' +  str(c_to_f(temp)) + 'F')
+            ScreenText.append(sensor.title + ' Board Temp: ' +  str(c_to_f(internal)) + 'F')
 
     return render_template("display.html", ScreenText = ScreenText)      
 
