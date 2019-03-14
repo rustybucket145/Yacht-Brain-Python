@@ -1,6 +1,7 @@
 #sys.path.append('/Adafruit_Python_GPIO')
 import os
 import sys
+import cgi, cgitb
 
 # Import SPI library (for hardware SPI) and MCP3008 library.
 import lib.Adafruit_GPIO.SPI as SPI
@@ -9,7 +10,7 @@ import lib.Adafruit_MAX31855.MAX31855 as MAX31855
 import time
 import glob
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, json
 from sqlalchemy import event, DDL
 
 base_dir = '/sys/bus/w1/devices/'
@@ -253,9 +254,17 @@ def rpipins():
     return render_template("tables.html", rpipins = rpipins)
 
 
-@app.route('/display')
-def display():
+##import cgi, cgitb
+##print "Content-type: text/html\n\n"    #for showing print on HTML
+##data = cgi.FieldStorage()
+##argument = data["webArguments"].value    #argument = name of PLC i need to fetch
+###some script for connecting to PLC and reading current value of 
+###variable  with name "argument", in this example "aiTemperature"
+##print plcVar
 
+@app.route('/UpdateGauges', methods=['POST'])
+def UpdateGauges():
+    
     #get all sensors stored in the database
     sensors = Sensors.query.order_by(Sensors.title).all()
     
@@ -270,7 +279,7 @@ def display():
             device_folder = glob.glob(base_dir + '*')[0]
             device_file = device_folder + '/w1_slave'
             print(sensor.title + ' : ' + str(read_temp(sensor.sensor_id)) + 'F')
-            ScreenText.append(sensor.title + ' : ' + str(read_temp(sensor.sensor_id)) + 'F' )
+            ScreenText.append(str(int(read_temp(sensor.sensor_id))) + '°F')
             
         elif sensor.is_analog_sensor == 1:
             
@@ -303,7 +312,7 @@ def display():
                 pressure = voltage * 30
             
             print(sensor.title + ' : ' + str(pressure) + 'psi');
-            ScreenText.append(sensor.title + ' : ' + str(pressure) + 'psi')
+            ScreenText.append(str(pressure) + 'psi')
             
             #need to look up the other sensor settings to determine voltage scale still
             # Print the ADC values.
@@ -332,10 +341,104 @@ def display():
             internal = maxsensor.readInternalC()
             print(sensor.title + ' Probe Temp: ' +  str(c_to_f(temp)))
             print(sensor.title + ' Board Temp: ' +  str(c_to_f(internal)))
-            ScreenText.append(sensor.title + ' Probe Temp: ' +  str(c_to_f(temp)) + 'F')
-            ScreenText.append(sensor.title + ' Board Temp: ' +  str(c_to_f(internal)) + 'F')
+            if temp != temp:
+                #checking for Nan (not a number)
+                temp = 0
+            if internal != internal:
+                #checking for Nan (not a number)
+                internal = 0
+            ScreenText.append(str(int(c_to_f(temp))) + '°F')
+            ScreenText.append(str(int(c_to_f(internal))) + '°F')
+            
+   
+    return json.dumps({'GaugeValues':ScreenText})
+#    return json.dumps({'GaugeValues':ScreenText,'Temp2':str(c_to_f(temp))})
+
+
+@app.route('/display')
+def display():
+
+    #get all sensors stored in the database
+    sensors = Sensors.query.order_by(Sensors.title).all()
+    
+    ScreenText = []
+
+    #loop through all sensors saved in db and create an array of the sensor id's
+    for sensor in sensors:
+               
+        #Display them all now to screen
+        if sensor.is_one_wire == 1:
+            #1 Wire 
+            device_folder = glob.glob(base_dir + '*')[0]
+            device_file = device_folder + '/w1_slave'
+            #print(sensor.title + ' : ' + str(read_temp(sensor.sensor_id)) + 'F')
+            ScreenText.append(sensor.title)
+            
+        elif sensor.is_analog_sensor == 1:
+            
+            #which board is this, and find right pins for it
+            BoardNum = right(sensor.sensor_id,1)
+            
+            #now do a lookup from rpipins to find Analog pins for that board
+            rpipins = RPIPins.query.order_by(RPIPins.rpipins_id).all()
+            
+            for rpipin in rpipins:
+                if rpipin.rpipins_type == 'Analog' and rpipin.rpipins_number == str(BoardNum):
+                    
+                    # Software SPI configuration:
+                    pCLK  = int(rpipin.rpipins_clk)
+                    MISO = int(rpipin.rpipins_miso)
+                    MOSI = int(rpipin.rpipins_mosi)
+                    CS   = int(rpipin.rpipins_cs)
+                    mcp = MCP.MCP3008(clk=pCLK, cs=CS, miso=MISO, mosi=MOSI)
+            
+            # The read_adc function will get the value of the specified channel (0-7).
+            voltage = mcp.read_adc(int(right(left(sensor.sensor_id,2),1)))
+            
+            #hook up 5v to first slot to read true 5.0 v
+            voltage = (voltage*5)/1024.0;
+         
+            #if voltage > 0.25:
+            pressure = 0
+            if voltage > .5:
+                # example multiplier for 150psi sensor
+                pressure = voltage * 30
+            
+            #print(sensor.title + ' : ' + str(pressure) + 'psi');
+            ScreenText.append(sensor.title)
+            
+            #need to look up the other sensor settings to determine voltage scale still
+            # Print the ADC values.
+            # for 150 psi  .5 = 0psi  2.5v=75psi  4.5v=150psi
+            # for 300 psi  .5 = 0psi  2.5v=150psi  4.5v=300psi
+            
+            
+        elif left(sensor.sensor_id,8) == 'MAX31855':
+            
+            #which board is this, and find right pins for it
+            BoardNum = right(sensor.sensor_id,1)
+            
+            #now do a lookup from rpipins to find Analog pins for that board
+            rpipins = RPIPins.query.order_by(RPIPins.rpipins_id).all()
+            
+            for rpipin in rpipins:
+                if rpipin.rpipins_type == 'MAX31855' and rpipin.rpipins_number == str(BoardNum):
+                    # Raspberry Pi software SPI configuration.
+                    CLK  = int(rpipin.rpipins_clk)
+                    DO = int(rpipin.rpipins_miso)
+                    CS   = int(rpipin.rpipins_cs)
+                    maxsensor = MAX31855.MAX31855(CLK, CS, DO)
+
+            #example code on reading from sensor
+            temp = maxsensor.readTempC()
+            internal = maxsensor.readInternalC()
+            #print(sensor.title + ' Probe Temp: ' +  str(c_to_f(temp)))
+            #print(sensor.title + ' Board Temp: ' +  str(c_to_f(internal)))
+            ScreenText.append(sensor.title + ' Probe Temp')
+            ScreenText.append(sensor.title + ' Board Temp')
 
     return render_template("display.html", ScreenText = ScreenText)      
+
 
 if __name__ == '__main__':
     app.run(debug=True,host='0.0.0.0')
