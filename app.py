@@ -21,7 +21,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = database_file
 
 from shared import db
 db.init_app(app)
- 
+x=0
 #import our data models
 from models import RPIPins, Sensors, SensorLocations, SensorTypes
 
@@ -436,7 +436,8 @@ def display():
             #print(sensor.title + ' Board Temp: ' +  str(c_to_f(internal)))
             ScreenText.append(sensor.title + ' Probe Temp')
             ScreenText.append(sensor.title + ' Board Temp')
-
+            
+            
     return render_template("display.html", ScreenText = ScreenText)      
 
 
