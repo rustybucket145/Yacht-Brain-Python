@@ -12,14 +12,11 @@ $(function ReadTemperature(){
 		// would like to then find a way to look at the retval response assign them to the the different spans that are auto created
 		// then replace retval below with the appropriate item in retval response
 
-	     {% for x in range(1,ScreenText.__len__()): %}
+	     {% for x in range(0,ScreenText.__len__()): %}
 
 		   $("#Sensor{{x}}").html(retval[{{x}}]);
 	     {% endfor %}	   
 		
-
-	     
-
 	            },
 		complete: function() {
 	                setTimeout(ReadTemperature, 1500);   //Refresh value every 3 seconds
@@ -28,10 +25,7 @@ $(function ReadTemperature(){
 	});
 
 });
-</script>
 
-<script>
-ReadTemperature()
 </script>
 
 {% extends "layout.html" %}
@@ -51,7 +45,7 @@ ReadTemperature()
     </p>
 
       <!-- build out a dynamic list of sensors that can then be populated by the ajax function -->
-        {% for y in range(1,ScreenText.__len__()):  %}
+        {% for y in range(0,ScreenText.__len__()):  %}
 		
 	<div>
 		{{ ScreenText[y] }} : <span id="Sensor{{y}}"> </span>
