@@ -174,10 +174,12 @@ def sensors():
             # Read all the ADC channel values in a list.
             values = [0]*8
             for i in range(8):
+                print('looping analog')
                 # The read_adc function will get the value of the specified channel (0-7).
                 values[i] = mcp.read_adc(i)
                 voltage = (values[i]*5)/1024.0;
-                if voltage > 0.4:
+                print('voltage' + str(voltage))
+                if voltage > 0.2:
                     sensor = Sensors(sensor_id = 'A' + str(i) + '-' + str(BoardNum))
                     #print('SensorID: ' + sensor)
                     if sensor.sensor_id not in sensors_in_database:
@@ -278,7 +280,7 @@ def UpdateGauges():
             #1 Wire 
             device_folder = glob.glob(base_dir + '*')[0]
             device_file = device_folder + '/w1_slave'
-            print(sensor.title + ' : ' + str(read_temp(sensor.sensor_id)) + 'F')
+            #print(sensor.title + ' : ' + str(read_temp(sensor.sensor_id)) + 'F')
             ScreenText.append(str(int(read_temp(sensor.sensor_id))) + '°F')
             
         elif sensor.is_analog_sensor == 1:
@@ -311,7 +313,7 @@ def UpdateGauges():
                 # example multiplier for 150psi sensor
                 pressure = voltage * 30
             
-            print(sensor.title + ' : ' + str(pressure) + 'psi');
+            #print(sensor.title + ' : ' + str(pressure) + 'psi');
             ScreenText.append(str(pressure) + 'psi')
             
             #need to look up the other sensor settings to determine voltage scale still
@@ -339,8 +341,8 @@ def UpdateGauges():
             #example code on reading from sensor
             temp = maxsensor.readTempC()
             internal = maxsensor.readInternalC()
-            print(sensor.title + ' Probe Temp: ' +  str(c_to_f(temp)))
-            print(sensor.title + ' Board Temp: ' +  str(c_to_f(internal)))
+            #print(sensor.title + ' Probe Temp: ' +  str(c_to_f(temp)))
+            #print(sensor.title + ' Board Temp: ' +  str(c_to_f(internal)))
             if temp != temp:
                 #checking for Nan (not a number)
                 temp = 0
