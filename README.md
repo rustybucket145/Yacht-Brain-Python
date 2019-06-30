@@ -26,6 +26,13 @@ from the terminal run the following command
 pip install sqlalchemy
 
 
+///this does not work yet
+Install espeak by running the following commands
+this will allow your rpi to give verbal warnings/alarms when sensors reach alarm status
+sudo apt-get install espeak
+chromium-browser --enable-speech-dispatcher
+//////
+
 Now you can clone the Yacht Brain for Python from git into your RPi
 from the terminal run the following command
 git clone https://github.com/rustybucket145/Yacht-Brain-Python.git

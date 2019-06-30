@@ -14,7 +14,7 @@ def insert_initial_values_sensor_locations():
     
     #check to see if these have been populated already
     if db.session.query(SensorLocations.sensor_location_title).all() == []:
-        db.session.add(SensorLocations(sensor_location_value='', sensor_location_title='--select--'))
+        db.session.add(SensorLocations(sensor_location_value='', sensor_location_title='--Sensor Location--'))
         db.session.add(SensorLocations(sensor_location_value='engine_single', sensor_location_title='Single Engine'))
         db.session.add(SensorLocations(sensor_location_value='engine_port', sensor_location_title='Port Engine'))
         db.session.add(SensorLocations(sensor_location_value='engine_stbd', sensor_location_title='Starboard Engine'))
@@ -34,7 +34,7 @@ def insert_initial_values_sensor_types():
     
     #check to see if these have been populated already
     if db.session.query(SensorTypes.sensor_type_title).all() == []:
-        db.session.add(SensorTypes(sensor_type_value='', sensor_type_title='--select--'))
+        db.session.add(SensorTypes(sensor_type_value='', sensor_type_title='--Sensor Application--'))
         db.session.add(SensorTypes(sensor_type_value='rpm', sensor_type_title='Livewell'))
         db.session.add(SensorTypes(sensor_type_value='coolantTemperature', sensor_type_title='Coolant Temp'))
         db.session.add(SensorTypes(sensor_type_value='oilTemperature', sensor_type_title='Oil Temp'))

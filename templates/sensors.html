@@ -3,8 +3,10 @@
 {% block title %}Index{% endblock %}
 {% block head %}
   {{ super() }}
-  <style type="text/css">
+  <style>
     .important { color: #336699; }
+    label{margin-bottom:0px;}
+    .sensor_value{color:blue;font-size:2em;font-weight:bold;}
   </style>
 {% endblock %}
 {% block content %}
@@ -18,90 +20,118 @@
 
             <form method="POST" action="">
                 <div class="form-group row">
+                    
+                    
+                    <div class="col-sm-1">
+						<h2 sensor_id="{{ sensor.sensor_id }}" id="sensor_value_{{ sensor.sensor_id }}" 
+						class="sensor_value" 
+						alarm_low={{ sensor.alarm_low }}
+						warning_low={{ sensor.warning_low }}
+						warning_hi={{ sensor.warning_hi }}
+						alarm_hi={{ sensor.alarm_hi }}
+						></h2>                   
+                    </div>
                      
-                    <div class="col-sm-2">
-                        <label for="title">Sensor Name</label>
-                        <input type="text" name="title" value="{{sensor.title}}">
-                    </div>
-                    <div class="col-sm-2">
-                        <label for="sensor_id">Sensor Id (DONT CHANGE)</label>
-                        <input type="text" name="sensor_id" value="{{ sensor.sensor_id }}">
-                    </div>
-                    <div class="col-sm-2">
-                        <label for="sensor_location">Location</label>
+                    
+                    <div class="col-sm-4">
                         <select name="sensor_location">
                             {% for sensor_location in sensor_locations %}
                                 <option value="{{ sensor_location.sensor_location_value }}" {% if sensor.sensor_location == sensor_location.sensor_location_value %}selected{% endif %}>{{ sensor_location.sensor_location_title }}</option>
                             {% endfor %}
                             
                         </select>
-                        
+                        <!--<label for="sensor_location">Location</label>-->
+
                     </div>
-                    <div class="col-sm-2">
-                        <label for="sensor_location">Measurement Type</label>
+                    <div class="col-sm-4">
                         <select name="sensor_type">
                             {% for sensor_type in sensor_types %}
                                 <option value="{{ sensor_type.sensor_type_value }}" {% if sensor.sensor_type == sensor_type.sensor_type_value %}selected{% endif %}>{{ sensor_type.sensor_type_title }}</option>
                             {% endfor %}
                                            
                         </select>
+                        <!--<label for="sensor_type">Type</label>-->
+
                         
                     </div>
+				</div><!-- end row -->
 
-                </div>
-                <div class="row">
-                    <div class="col-sm-2">
-                        <label for="alarm_low">Alarm Lo</label>
-                        <input type="text" name="alarm_low" value="{{ sensor.alarm_low }}">
-                    </div>
-                    <div class="col-sm-2">
-                        <label for="warning_low">Warning Lo</label>
-                        <input type="text" name="warning_low" value="{{ sensor.warning_low }}">
-                    </div>
-                    <div class="col-sm-2">
-                        <label for="warning_hi">Warning Hi</label>
-                        <input type="text" name="warning_hi" value="{{ sensor.warning_hi }}">
-                    </div>
-                    <div class="col-sm-2">
-                        <label for="alarm_hi">Alarm Hi</label>
-                        <input type="text" name="alarm_hi" value="{{ sensor.alarm_hi }}">
-                    </div>
-                 </div>
-                 <div class="row">
-                    <div class="col-sm-2">
-                        <label for="mapping_a_reading">Mapping a reading</label>
-                        <input type="text" name="mapping_a_reading" value="{{ sensor.mapping_a_reading }}">
-                    </div>
-                    <div class="col-sm-2">
-                        <label for="mapping_a_value">Mapping a value</label>
-                        <input type="text" name="mapping_a_value" value="{{ sensor.mapping_a_value }}">
-                    </div>
-                    <div class="col-sm-2">
-                        <label for="mapping_b_reading">Mapping b reading</label>
-                        <input type="text" name="mapping_b_reading" value="{{ sensor.mapping_b_reading }}">
-                    </div>
-                    <div class="col-sm-2">
-                        <label for="mapping_b_value">Mapping b value</label>
-                        <input type="text" name="mapping_b_value" value="{{ sensor.mapping_b_value }}">
+				<a class="toggle_next" href="#">Sensor Alarms</a>&nbsp;&nbsp;|&nbsp;&nbsp;
+				<div  class="form-group" style="display:none;">
+	
+					<div class="row">
+						<div class="col-sm-2">
+							<label for="alarm_low">Alarm Lo</label>
+							<input type="text" name="alarm_low" value="{{ sensor.alarm_low }}">
+						</div>
+						<div class="col-sm-2">
+							<label for="warning_low">Warn Lo</label>
+							<input type="text" name="warning_low" value="{{ sensor.warning_low }}">
+						</div>
+              
+						<div class="col-sm-2">
+							<label for="warning_hi">Warn Hi</label>
+							<input type="text" name="warning_hi" value="{{ sensor.warning_hi }}">
+						</div>
+						<div class="col-sm-2">
+							<label for="alarm_hi">Alarm Hi</label>
+							<input type="text" name="alarm_hi" value="{{ sensor.alarm_hi }}">
+						</div>
                     </div>
                  </div>
-                 <div class="row">
-                    <div class="col-sm-2">
+                 
+                 
+                 <a class="toggle_next" href="#">Sensor Mapping</a>
+                 <div style="display:none;">
+					 <div class="row">
+						<div class="col-sm-4">
+							<label for="mapping_a_reading">Mapping a reading</label>
+							<input type="text" name="mapping_a_reading" value="{{ sensor.mapping_a_reading }}">
+						</div>
+						<div class="col-sm-4">
+							<label for="mapping_a_value">Mapping a value</label>
+							<input type="text" name="mapping_a_value" value="{{ sensor.mapping_a_value }}">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4">
+							<label for="mapping_b_reading">Mapping b reading</label>
+							<input type="text" name="mapping_b_reading" value="{{ sensor.mapping_b_reading }}">
+						</div>
+						<div class="col-sm-4">
+							<label for="mapping_b_value">Mapping b value</label>
+							<input type="text" name="mapping_b_value" value="{{ sensor.mapping_b_value }}">
+						</div>
+					</div>
+                    <div class="col-sm-4">
                         <label for="is_one_wire"><input type="checkbox" name="is_one_wire" value="1" {% if sensor.is_one_wire == 1 %}checked="checked"{% endif %}> Is OneWire?</label>
                         <label for="is_analog_sensor"><input type="checkbox" name="is_analog_sensor" value="1" {% if sensor.is_analog_sensor == 1 %}checked="checked"{% endif %}> Is Analog</label>
                     </div>
                    
-                    <div class="col-sm-2">
-                        <label for="sensor_db_id">Database Id</label>
-                        <input type="text" name="sensor_db_id" value="{{ sensor.sensor_db_id }}" size=5>
-			<!-- making the sensor ID disabled prevents the value from being published to the form and readable in code.  removed this for timebeing -->
+                   
+                   <div style="display:none;">
+					   <div class="col-sm-4">
+							<label for="title">Sensor Name</label>
+							<input type="text" name="title" value="{{sensor.title}}">
+						</div>
+						
+						<div class="col-sm-4">
+							<label for="sensor_id">Sensor Id</label>
+							<input type="text" name="sensor_id" value="{{ sensor.sensor_id }}">
+
+						</div>
+						<div class="col-sm-4">
+							<label for="sensor_db_id">Database Id</label>
+							<input type="text" name="sensor_db_id" value="{{ sensor.sensor_db_id }}" size=5>
+						</div>
+						
                     </div>
                  </div>
                  <div class="row">
-                    <div class="col-sm-2">
+                    <div class="col-sm-4">
                         <input type="submit" value="Save">  
                     </div>
-		    <div class="col-sm-2">
+		    <div class="col-sm-4">
                         <label for="Delete"><input type="checkbox" name="delete" value="1">Delete this Sensor?</label>
                     </div>
 

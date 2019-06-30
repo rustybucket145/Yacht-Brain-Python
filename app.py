@@ -51,7 +51,11 @@ def read_temp(sensor_id):
         temp_string = lines[1][equals_pos+2:]
         temp_c = float(temp_string) / 1000.0
         temp_f = temp_c * 9.0 / 5.0 + 32.0
-        return int(round(temp_f))
+        
+        data = {"temp_c": round(temp_c), "temp_f": round(temp_f)}
+        
+        
+        return data
 
 def left(s, amount):
     return s[:amount]
@@ -263,6 +267,41 @@ def rpipins():
 ###some script for connecting to PLC and reading current value of 
 ###variable  with name "argument", in this example "aiTemperature"
 ##print plcVar
+
+
+
+
+
+
+
+
+
+
+
+
+#ajax function to retrieve sensor values based on sensor id
+@app.route('/getSensorValue', methods=["GET", "POST"])
+def getSensorValue():
+    print('sensor value')
+    
+    #sensor_id = request.GET['sensor_id']
+    sensor_id = request.values['sensor_id']
+    sensor_value = read_temp(sensor_id)
+    #print(sensor_value)
+    import json
+
+    #data = json.loads(sensor_value)
+
+    #print(data)
+
+
+
+    return json.dumps(sensor_value)
+
+
+
+
+
 
 @app.route('/UpdateGauges', methods=['POST'])
 def UpdateGauges():
