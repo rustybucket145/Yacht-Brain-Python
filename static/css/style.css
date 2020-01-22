@@ -21,3 +21,20 @@ color:red;
   }
 }
 
+.sensor_value_label{
+	font-size:.8em;
+}
+
+.daylight .sensor_value_label{
+	color:#888888;
+}
+.nighttime .sensor_value_label{
+	color:#888888;
+}
+
+.align_right{
+	text-align:right;
+}	
+.align_left{
+	text-align:left;
+}	

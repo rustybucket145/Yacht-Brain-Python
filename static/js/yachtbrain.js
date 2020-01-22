@@ -7,10 +7,10 @@
 function update_sensor_value(sensor_id){
 	//alert('firing');
 	//console.log('get_sensor_value firing');
-	var alarm_low = parseInt($("#sensor_value_"+sensor_id).attr("alarm_low"));
-	var warning_low = parseInt($("#sensor_value_"+sensor_id).attr("warning_low"));
-	var warning_hi = parseInt($("#sensor_value_"+sensor_id).attr("warning_hi"));
-	var alarm_hi = parseInt($("#sensor_value_"+sensor_id).attr("alarm_hi"));
+	var alarm_low = parseInt($("#sensor_value_"+sensor_id+"_imperial_value").attr("alarm_low"));
+	var warning_low = parseInt($("#sensor_value_"+sensor_id+"_imperial_value").attr("warning_low"));
+	var warning_hi = parseInt($("#sensor_value_"+sensor_id+"_imperial_value").attr("warning_hi"));
+	var alarm_hi = parseInt($("#sensor_value_"+sensor_id+"_imperial_value").attr("alarm_hi"));
 	
 	//console.log('preferred_currency == '+preferred_currency);
    	var response = jQuery.ajax({
@@ -45,36 +45,38 @@ function update_sensor_value(sensor_id){
 //alert(typeof alarm_hi);
 
 			// return the sensor values and the alarm status here
-			jQuery("#sensor_value_"+sensor_id).text(sensorValueJson['temp_f']);
-			jQuery("#sensor_value_"+sensor_id+"_metric_value").text(sensorValueJson['temp_c']);
-			jQuery("#sensor_value_"+sensor_id+"_sae_value").text(sensorValueJson['temp_f']);
-			
-			if(!('webkitSpeechRecognition' in window)){
-			alert('no speka da engrish');
-			}
-			var msg = new SpeechSynthesisUtterance('Hello World');
-				window.speechSynthesis.speak(msg);
+			//jQuery("#sensor_value_"+sensor_id).text(sensorValueJson['temp_f']);
+			jQuery("#sensor_value_"+sensor_id+"_metric_value").html(sensorValueJson['temp_c']+"&deg;c");
+			jQuery("#sensor_value_"+sensor_id+"_imperial_value").html(sensorValueJson['temp_f']+"&deg;f");
 			
 			// if we have an alarm status we change the color and blink the value
 			// blink_me is the blinker class
 			if(alarm_low && sensorValueJson['temp_f'] <= alarm_low){
-				jQuery("#sensor_value_"+sensor_id).removeClass("yellow").addClass("red blink_me");				
+				jQuery("#sensor_value_"+sensor_id+"_imperial_value").removeClass("yellow").addClass("red blink_me");				
+				var audio = new Audio('static/audio/code_red_alarm.mp3');
+				audio.play();		
 			}
 			else if(alarm_hi && sensorValueJson['temp_f'] >= alarm_hi){
-				jQuery("#sensor_value_"+sensor_id).removeClass("yellow").addClass("red blink_me");				
+				jQuery("#sensor_value_"+sensor_id+"_imperial_value").removeClass("yellow").addClass("red blink_me");				
+				var audio = new Audio('static/audio/code_red_alarm_short.mp3');
+				audio.play();		
 			}
 			else if(warning_low && sensorValueJson['temp_f'] <= warning_low){
-				jQuery("#sensor_value_"+sensor_id).removeClass("red").addClass("yellow blink_me");				
+				jQuery("#sensor_value_"+sensor_id+"_imperial_value").removeClass("red").addClass("yellow blink_me");				
+				var audio = new Audio('static/audio/code_yellow_alarm_short.mp3');
+				audio.play();		
+
 			}
 			else if(warning_hi && sensorValueJson['temp_f'] >= warning_hi){
-				jQuery("#sensor_value_"+sensor_id).removeClass("red").addClass("yellow blink_me");				
+				//alert('alamr here');
+				jQuery("#sensor_value_"+sensor_id+"_imperial_value").removeClass("red").addClass("yellow blink_me");				
 			
-				var msg = new SpeechSynthesisUtterance('Hello World');
-				window.speechSynthesis.speak(msg);
+				var audio = new Audio('static/audio/code_yellow_alarm.mp3');
+				audio.play();		
 			
 			}
 			else{
-				jQuery("#sensor_value_"+sensor_id).removeClass("yellow red blink_me");
+				jQuery("#sensor_value_"+sensor_id+"_imperial_value").removeClass("yellow red blink_me");
 			}
 
 			return false;
@@ -101,16 +103,19 @@ function refreshSensors(){
 
 
 jQuery(document).ready(function(){
+
+/*
+	refreshSensors();
 	if ($(".sensor_value").length > 0) {
 		
 		window.setInterval(function(){
 		  /// call your function here
 		  refreshSensors();
-		}, 5000);
+		}, 95000);
 		
 	}
 
-
+*/
 
 
 
@@ -125,7 +130,48 @@ $('.toggle_next').click(function () {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
 }); // end doc ready
+
+
+
+// sockets here
+
+$(document).ready(function(){
+    //connect to the socket server.
+    var socket = io.connect('http://' + document.domain + ':' + location.port + '/test');
+    var numbers_received = [];
+
+    //receive details from server
+    socket.on('newnumber', function(msg) {
+        console.log("Received numberzz" + msg.sensor_id);
+        console.log(msg);
+        //maintain a list of ten numbers
+       //sensor_value_3b-6c98073da19e_imperial_value
+		//$('#sensor_value_'+msg.sensor_id+'_imperial_value').
+		
+	
+		jQuery("#sensor_value_"+msg.sensor_id+"_metric_value").html(msg.sensor_values.temp_c+"&deg;c");
+		jQuery("#sensor_value_"+msg.sensor_id+"_imperial_value").html(msg.sensor_values.temp_f+"&deg;f");
+		
+		
+		
+        
+    });
+
+});
+
+
 
 
 ////////////////////////////

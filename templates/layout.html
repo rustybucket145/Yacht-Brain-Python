@@ -24,7 +24,14 @@
     <link href="/static/css/sb-admin.css" rel="stylesheet">
 
     <!-- yachtbrain specific styles -->
-    <link href="/static/css/style.css" rel="stylesheet">
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='css/style.css') }}">
+
+  <style>
+    .important { color: #336699; }
+    label{margin-bottom:0px;}
+    .sensor_value{font-size:1em;font-weight:bold;}
+  </style>
+
 
   </head>
 
@@ -173,6 +180,9 @@
 
     <!-- Core plugin JavaScript-->
     <script src="/static/vendor/jquery-easing/jquery.easing.min.js"></script>
+
+    <!-- socketio script for all pages-->
+    <script src="/static/js/socket.io.min.js"></script>
 
     <!-- Custom scripts for all pages-->
     <script src="/static/js/sb-admin.min.js"></script>

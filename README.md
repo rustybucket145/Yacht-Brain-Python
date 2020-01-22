@@ -9,9 +9,23 @@ https://www.raspberrypi.org/documentation/installation/installing-images/
 Python 3
 should come installed with Raspbian
 
+Now you can clone the Yacht Brain for Python from git into your RPi
+from the terminal run the following command
+git clone https://github.com/rustybucket145/Yacht-Brain-Python.git
+
+// create the virtual environement
+cd Yacht-Brain-Python
+python3 -m venv venv
+// activate the virtual environment
+. venv/bin/activate
+
+
 Flask - a templating engine for Python
 from the terminal run the following command to install flask
 sudo apt-get install python3-flask
+
+// install flask socketio, this allows for web sockets
+pip install flask-socketio
 
 Bootstrap (css javascript...etc) - should all be included in file structure
 
@@ -33,9 +47,6 @@ sudo apt-get install espeak
 chromium-browser --enable-speech-dispatcher
 //////
 
-Now you can clone the Yacht Brain for Python from git into your RPi
-from the terminal run the following command
-git clone https://github.com/rustybucket145/Yacht-Brain-Python.git
 
 
 Now you should be able to navigate to the folder in your RPi:  
@@ -47,6 +58,7 @@ up the python3 server and clicking a link on the home page.
 Launch the app as follows:
 In terminal enter the following commands one at a time (pressing enter key after each)
 cd /home/pi/Yacht-Brain-Python
+. venv/bin/activate
 python3 app.py
 
 Our web server should now be online and active. To check visit the following url

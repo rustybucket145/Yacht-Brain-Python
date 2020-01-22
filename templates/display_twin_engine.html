@@ -1,0 +1,157 @@
+
+{% extends "layout.html" %}
+{% block title %}Index{% endblock %}
+{% block head %}
+  {{ super() }}
+
+{% endblock %}
+{% block content %}
+<!--<a href="#" id="toggle_fullscreen" style="font-size:.8em;">Toggle Fullscreen</a>-->
+
+<div class="row daylight" id="sensor_display_screen">
+	
+	<!-- port engine -->
+	<div class="col-sm-6 align_right">
+		<h2>port engine</h2>
+		
+		<!-- loop through the available sensors to determine if this sensor is available -->
+		{% for sensor in sensors %}
+			{% if sensor.sensor_location=='engine_port' and sensor.sensor_type=='exhaustTemperatureOutboard' %}
+				<div class="row">
+					<div class="col-sm-6">
+						{%include "display_sensor_value.html"%}
+					</div>
+			{% endif %}
+		{% endfor %}
+
+			
+		{% for sensor in sensors %}
+			{% if sensor.sensor_location=='engine_port' and sensor.sensor_type=='exhaustTemperatureInboard' %}
+				
+					<div class="col-sm-6">
+						{%include "display_sensor_value.html"%}
+					</div>
+				</div>
+				<hr/>
+			{% endif %}
+		{% endfor %}
+
+			
+		{% for sensor in sensors %}			
+			{% if sensor.sensor_location=='engine_port' and sensor.sensor_type=='coolantTemperature' %}
+				<div class="row">
+					<div class="col-sm-12">
+						{%include "display_sensor_value.html"%}
+					</div>
+				</div>
+				<hr/>
+			{% endif %}
+		{% endfor %}
+
+			
+		{% for sensor in sensors %}
+			{% if sensor.sensor_location=='engine_port' and sensor.sensor_type=='oilTemperature' %}
+				<div class="row">
+					<div class="col-sm-12">
+						{%include "display_sensor_value.html"%}
+					</div>
+				</div>
+				<hr/>
+			{% endif %}
+		{% endfor %}
+
+			
+		{% for sensor in sensors %}
+			{% if sensor.sensor_location=='engine_port' and sensor.sensor_type=='transmissionOilTemperature' %}
+				<div class="row">
+					<div class="col-sm-12">
+						{%include "display_sensor_value.html"%}
+					</div>
+				</div>
+				<hr/>
+			{% endif %}
+        {% endfor %}
+
+
+
+
+	</div><!-- end port engine -->
+	
+	
+	
+	
+	
+	
+	<!-- stbd engine -->
+	<div class="col-sm-6 align_left">
+		<h2>starboard engine</h2>
+		
+		<!-- loop through the available sensors to determine if this sensor is available -->
+		{% for sensor in sensors %}
+			{% if sensor.sensor_location=='engine_stbd' and sensor.sensor_type=='exhaustTemperatureInboard' %}
+				<div class="row">
+					<div class="col-sm-6">
+						{%include "display_sensor_value.html"%}
+					</div>
+			{% endif %}
+		{% endfor %}
+
+			
+		{% for sensor in sensors %}
+			{% if sensor.sensor_location=='engine_stbd' and sensor.sensor_type=='exhaustTemperatureOutboard' %}
+				
+					<div class="col-sm-6">
+						{%include "display_sensor_value.html"%}
+					</div>
+				</div>
+				<hr/>
+			{% endif %}
+		{% endfor %}
+
+			
+		{% for sensor in sensors %}			
+			{% if sensor.sensor_location=='engine_stbd' and sensor.sensor_type=='coolantTemperature' %}
+				<div class="row">
+					<div class="col-sm-12">
+						{%include "display_sensor_value.html"%}
+					</div>
+				</div>
+				<hr/>
+			{% endif %}
+		{% endfor %}
+
+			
+		{% for sensor in sensors %}
+			{% if sensor.sensor_location=='engine_stbd' and sensor.sensor_type=='oilTemperature' %}
+				<div class="row">
+					<div class="col-sm-12">
+						{%include "display_sensor_value.html"%}
+					</div>
+				</div>
+				<hr/>
+			{% endif %}
+		{% endfor %}
+
+			
+		{% for sensor in sensors %}
+			{% if sensor.sensor_location=='engine_stbd' and sensor.sensor_type=='transmissionOilTemperature' %}
+				<div class="row">
+					<div class="col-sm-12">
+						{%include "display_sensor_value.html"%}
+					</div>
+				</div>
+				<hr/>
+			{% endif %}
+        {% endfor %}
+
+
+
+
+	</div><!-- end port engine -->  
+  
+  
+</div>
+
+	   
+
+{% endblock %}

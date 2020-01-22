@@ -17,7 +17,8 @@ class Sensors(db.Model):
     mapping_b_value = db.Column(db.Integer)
     is_one_wire = db.Column(db.Integer)
     is_analog_sensor = db.Column(db.Integer)
-    
+
+
 
     def __repr__(self):
         return"<Title>: {}>".format(self.title)

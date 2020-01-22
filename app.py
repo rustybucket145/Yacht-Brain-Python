@@ -10,7 +10,13 @@ import lib.Adafruit_MAX31855.MAX31855 as MAX31855
 import time
 import glob
 
+
 from flask import Flask, render_template, request, json
+from flask_socketio import SocketIO, emit
+
+from random import random
+from threading import Thread, Event
+
 from sqlalchemy import event, DDL
 
 base_dir = '/sys/bus/w1/devices/'
@@ -18,6 +24,14 @@ project_dir = os.path.dirname(os.path.abspath(__file__))
 database_file = "sqlite:///{}".format(os.path.join(project_dir,"yachtbraindatabase.db"))
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = database_file
+
+#turn the flask app into a socketio app
+socketio = SocketIO(app, async_mode=None, logger=True, engineio_logger=True)
+
+#random number Generator Thread
+thread = Thread()
+thread_stop_event = Event()
+
 
 from shared import db
 db.init_app(app)
@@ -32,6 +46,8 @@ def c_to_f(c):
 
 #used for 1Wire 
 def read_temp_raw(device_file):
+    
+    
     f = open(device_file, 'r')
     lines = f.readlines()
     f.close()
@@ -39,23 +55,72 @@ def read_temp_raw(device_file):
 
 #used for 1Wire
 def read_temp(sensor_id):
-    device_folder = glob.glob(base_dir + sensor_id)[0]
-    device_file = device_folder + '/w1_slave'
-
-    lines = read_temp_raw(device_file)
-    while lines[0].strip()[-3:] != 'YES':
-        time.sleep(0.2)
+    print(sensor_id)
+    
+    import os.path
+    if os.path.exists(base_dir + sensor_id):
+        
+        device_folder = glob.glob(base_dir + sensor_id)[0]
+        device_file = device_folder + '/w1_slave'
+    
+    
+    
         lines = read_temp_raw(device_file)
-    equals_pos = lines[1].find('t=')
-    if equals_pos != -1:
-        temp_string = lines[1][equals_pos+2:]
-        temp_c = float(temp_string) / 1000.0
-        temp_f = temp_c * 9.0 / 5.0 + 32.0
+        while lines[0].strip()[-3:] != 'YES':
+            time.sleep(0.2)
+            lines = read_temp_raw(device_file)
+        equals_pos = lines[1].find('t=')
+        if equals_pos != -1:
+            temp_string = lines[1][equals_pos+2:]
+            temp_c = float(temp_string) / 1000.0
+            temp_f = temp_c * 9.0 / 5.0 + 32.0
         
-        data = {"temp_c": round(temp_c), "temp_f": round(temp_f)}
+            data = {"temp_c": round(temp_c), "temp_f": round(temp_f)}
         
         
+            return data
+    else:
+        data = {"temp_c": "9999", "temp_f": "9999"} 
         return data
+
+
+
+#used for 1Wire
+def read_temp_return_list(sensor_id):
+    print(sensor_id)
+    
+    import os.path
+    if os.path.exists(base_dir + sensor_id):
+        
+        device_folder = glob.glob(base_dir + sensor_id)[0]
+        device_file = device_folder + '/w1_slave'
+    
+    
+    
+        lines = read_temp_raw(device_file)
+        while lines[0].strip()[-3:] != 'YES':
+            time.sleep(0.2)
+            lines = read_temp_raw(device_file)
+        equals_pos = lines[1].find('t=')
+        if equals_pos != -1:
+            temp_string = lines[1][equals_pos+2:]
+            temp_c = float(temp_string) / 1000.0
+            temp_f = temp_c * 9.0 / 5.0 + 32.0
+        
+            data = {"temp_c": round(temp_c), "temp_f": round(temp_f)}
+            #data = {}
+            #data.temp_c = round(temp_c)
+            #data.temp_f = round(temp_f)
+            
+        
+            return data
+    else:
+        #data = {}
+        #data.temp_c = round(999)
+        #data.temp_f = round(888)
+        data = {"temp_c": round(999), "temp_f": round(888)}   
+        return data
+
 
 def left(s, amount):
     return s[:amount]
@@ -89,7 +154,7 @@ def sensors():
     print('Reading Sensors from DB')
     #get all sensors stored in the database
     sensors = Sensors.query.order_by(Sensors.title).all()
-    
+    #print(type(sensors))
     print('Load DB Sensors into Array')
     #loop through all sensors saved in db and create an array of the sensor id's
     sensors_in_database = []
@@ -223,7 +288,8 @@ def sensors():
     #Finished finding all sensors.  Reload the Sensors object from the DB to pickup the new changes from above
     #pick up the changes before returning to page
     sensors = Sensors.query.order_by(Sensors.title).all()
-    
+    import pprint
+    pprint.pprint(sensors)
     return render_template("sensors.html", sensors = sensors, sensor_locations=sensor_locations,sensor_types=sensor_types)
 
 
@@ -278,7 +344,6 @@ def rpipins():
 
 
 
-
 #ajax function to retrieve sensor values based on sensor id
 @app.route('/getSensorValue', methods=["GET", "POST"])
 def getSensorValue():
@@ -298,6 +363,29 @@ def getSensorValue():
 
     return json.dumps(sensor_value)
 
+
+
+
+#ajax function to retrieve sensor values based on sensor id
+def getSensorValueForSocket(sensor):
+    print('sensor value')
+    
+    #sensor_id = request.GET['sensor_id']
+    #if 'sensor_id' in locals():
+        #sensor_id = request.values['sensor_id']
+            
+    return read_temp_return_list(sensor.sensor_id)
+    #print(sensor_value)
+    #import json
+
+    #data = json.loads(sensor_value)
+
+    #print(data)
+
+
+
+    #return sensor_value
+    #return json.dumps(sensor_value)
 
 
 
@@ -394,6 +482,21 @@ def UpdateGauges():
    
     return json.dumps({'GaugeValues':ScreenText})
 #    return json.dumps({'GaugeValues':ScreenText,'Temp2':str(c_to_f(temp))})
+ 
+
+
+@app.route('/display_twin_engine')
+def display_twin_engine():
+
+    #get all sensors stored in the database
+    sensors = Sensors.query.order_by(Sensors.title).all()
+
+    sensor_locations = SensorLocations.query.order_by(SensorLocations.sensor_location_value).all()
+    sensor_types = SensorTypes.query.order_by(SensorTypes.sensor_type_value).all()
+    rpipins = RPIPins.query.order_by(RPIPins.rpipins_id).all()
+
+
+    return render_template("display_twin_engine.html", sensors=sensors, sensor_types=sensor_types)
 
 
 @app.route('/display')
@@ -482,5 +585,110 @@ def display():
     return render_template("display.html", ScreenText = ScreenText)      
 
 
+
+
+
+#sockets test script
+def sensorReadValueToSocket(sensors):
+    """
+    continually loop through sensors and take readings
+    push the values to the web socket to update any clients
+    
+    """
+    #print('getting sensors')
+    # get all the sensors in the database
+    #with app.app_context():
+        #sensors = Sensors.query.order_by(Sensors.title).all()
+    #from pprint import pprint
+    #type(sensors)
+    
+    #print('got sensors')
+    #infinite loop of magical random numbers
+    #print("checkign sensors")
+    
+    import json
+    
+    while not thread_stop_event.isSet():
+        
+        for i in range(len(sensors)):
+            #print(type(sensors[i]))
+            #print(sensors[i].sensor_id)
+        
+            #print('sensor for')
+            #sensor_data = sensors[i]
+            
+            #data = json.dumps(sensors[i])
+            
+            #sensors[i].sensorValues = getSensorValueForSocket(sensors[i])
+            #sensor_data.sensorValue = 132
+            
+            #print(sensors[i].sensor_id)
+            #print('got endfor sensors')
+            
+            sensor_json = {
+                "sensor_id": sensors[i].sensor_id
+                , "sensor_values": getSensorValueForSocket(sensors[i])                
+                , "sensor_db_id": sensors[i].sensor_db_id
+                , "title": sensors[i].title
+                , "sensor_location": sensors[i].sensor_location
+                , "sensor_type": sensors[i].sensor_type
+                , "warning_low": sensors[i].warning_low
+                , "warning_hi": sensors[i].warning_hi
+                , "alarm_low": sensors[i].alarm_low
+                , "alarm_hi": sensors[i].alarm_hi
+                , "mapping_a_reading": sensors[i].mapping_a_reading
+                , "mapping_a_value": sensors[i].mapping_a_value
+                , "mapping_b_reading": sensors[i].mapping_b_reading
+                , "is_one_wire": sensors[i].is_one_wire
+                , "is_analog_sensor": sensors[i].is_analog_sensor
+                }
+            
+            
+            socketio.emit('newnumber', sensor_json, namespace='/test')
+        
+        #sensor_data.sensorValue = 321
+        #socketio.emit('newnumber', {'number': sensor_data.sensorValue}, namespace='/test')              
+        socketio.sleep(5)
+
+
+
+def randomNumberGenerator():
+    """
+    Generate a random number every 1 second and emit to a socketio instance (broadcast)
+    Ideally to be run in a separate thread?
+    """
+    #infinite loop of magical random numbers
+    print("Making random numbers")
+    
+    with app.app_context():
+        sensors = Sensors.query.order_by(Sensors.title).all()
+    
+    
+    print("Mxxxxxs")
+    while not thread_stop_event.isSet():
+        number = round(random()*10, 3)
+        print(number)
+        socketio.emit('newnumber', {'number': number}, namespace='/test')
+        socketio.sleep(2)
+
+
+@socketio.on('connect', namespace='/test')
+def test_connect():
+    # need visibility of the global thread object
+    global thread
+    print('Client connected')
+
+    #Start the random number generator thread only if the thread has not been started before.
+    if not thread.isAlive():
+        print("Starting Thread")
+        
+        sensors = Sensors.query.order_by(Sensors.title).all()
+        thread = socketio.start_background_task(sensorReadValueToSocket, sensors)
+
+@socketio.on('disconnect', namespace='/test')
+def test_disconnect():
+    print('Client disconnected')
+
+
 if __name__ == '__main__':
-    app.run(debug=True,host='0.0.0.0')
+    socketio.run(app, host='0.0.0.0', port=5000)

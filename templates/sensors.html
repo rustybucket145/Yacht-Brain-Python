@@ -3,11 +3,7 @@
 {% block title %}Index{% endblock %}
 {% block head %}
   {{ super() }}
-  <style>
-    .important { color: #336699; }
-    label{margin-bottom:0px;}
-    .sensor_value{color:blue;font-size:2em;font-weight:bold;}
-  </style>
+
 {% endblock %}
 {% block content %}
     <h1>Sensors {{ testy }}</h1>
@@ -23,13 +19,23 @@
                     
                     
                     <div class="col-sm-1">
-						<h2 sensor_id="{{ sensor.sensor_id }}" id="sensor_value_{{ sensor.sensor_id }}" 
+						<span sensor_id="{{ sensor.sensor_id }}" id="sensor_value_{{ sensor.sensor_id }}_imperial_value" 
 						class="sensor_value" 
 						alarm_low={{ sensor.alarm_low }}
 						warning_low={{ sensor.warning_low }}
 						warning_hi={{ sensor.warning_hi }}
 						alarm_hi={{ sensor.alarm_hi }}
-						></h2>                   
+						></span>                   
+
+						<span sensor_id="{{ sensor.sensor_id }}" id="sensor_value_{{ sensor.sensor_id }}_metric_value" 
+						class="sensor_value_c" 
+						alarm_low={{ sensor.alarm_low }}
+						warning_low={{ sensor.warning_low }}
+						warning_hi={{ sensor.warning_hi }}
+						alarm_hi={{ sensor.alarm_hi }}
+						></span>                   
+
+
                     </div>
                      
                     
@@ -107,9 +113,11 @@
                         <label for="is_one_wire"><input type="checkbox" name="is_one_wire" value="1" {% if sensor.is_one_wire == 1 %}checked="checked"{% endif %}> Is OneWire?</label>
                         <label for="is_analog_sensor"><input type="checkbox" name="is_analog_sensor" value="1" {% if sensor.is_analog_sensor == 1 %}checked="checked"{% endif %}> Is Analog</label>
                     </div>
+                   <div class="col-sm-4">
+                        <label for="Delete"><input type="checkbox" name="delete" value="1">Delete this Sensor?</label>
+                    </div>
                    
-                   
-                   <div style="display:none;">
+                   <div style="display:block;">
 					   <div class="col-sm-4">
 							<label for="title">Sensor Name</label>
 							<input type="text" name="title" value="{{sensor.title}}">
@@ -131,9 +139,7 @@
                     <div class="col-sm-4">
                         <input type="submit" value="Save">  
                     </div>
-		    <div class="col-sm-4">
-                        <label for="Delete"><input type="checkbox" name="delete" value="1">Delete this Sensor?</label>
-                    </div>
+		    
 
 
 
